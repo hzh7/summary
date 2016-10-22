@@ -1,3 +1,4 @@
+# coding=utf-8
 import matplotlib.pyplot as plt
 import random as rd
 import numpy as np
@@ -7,6 +8,7 @@ import cmath
 class Node(object):
     angle = None
     radius = None
+    #work_radius = radius*math.cos(math.pi - Node.angle/2.0)
     def __init__(self, x, y):
         '''
         @param x: the x axis value of Node
@@ -16,6 +18,7 @@ class Node(object):
         self._x = x
         self._y = y
         self.work_direction = rd.random() * 2.0 * math.pi
+        self.type = rd.randint(0, 2)#:type: 0 动态节点，else 静态节点
 
     def plot(self):
         '''
@@ -23,8 +26,18 @@ class Node(object):
         :return:
         '''
         self.plot_appro_area()
-        self.plot_origin_area()
+        #self.plot_origin_area()
         self.plot_point()
+
+    def plot_type(self, num):
+        '''
+        plot the Node when type is num
+        :return:
+        '''
+        if self.type == num:
+            self.plot_appro_area()
+            #self.plot_origin_area()
+            self.plot_point()
 
     def plot_point(self):
         '''
@@ -56,8 +69,16 @@ class Node(object):
         ps = [self._x+self._y*1j+cmath.exp(1j*t)*Node.radius*math.cos(math.pi - self.angle/2.0) for t in ts]
         xs = [i.real for i in ps]
         ys = [i.imag for i in ps]
+        '''
         plt.plot(xs, ys, 'g')
-        plt.fill(xs, ys, 'g', alpha=0.1)
+        plt.fill(xs, ys, 'g', alpha=0.05)
+        '''
+        if self.type == -1:
+            plt.plot(xs, ys, 'g')
+            plt.fill(xs, ys, 'g', alpha=0.05)
+        else:
+            plt.plot(xs, ys, 'b')
+            plt.fill(xs, ys, 'r', alpha=0.1)
 
 
 '''
