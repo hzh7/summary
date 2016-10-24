@@ -6,26 +6,26 @@ from Fence import Fence
 import math
 import matplotlib.pyplot as plt
 if __name__ == '__main__':
+    '''
     for i in range(51):
         print "第", i, "次实验："
         nodes = Create(300, 400, math.pi*8/5.0, 10, 400)
         fence = Fence(nodes)
-        fence.Creat_Fence()
+        fence.Creat_Fence(2)
         print
-
-
-    nodes = Create(300, 400, math.pi * 8 / 5.0, 10, 400)
+    '''
+    nodes = Create(300, 400, math.pi * 8 / 5.0, 10, 100) #产生随机部署点
     plt.figure(1)
     nodes.Plot_Node()
 
     fence = Fence(nodes)
-    fence.Creat_Fence()
-    Grid().plot_grid(300, 400)
+    fence.Creat_Fence(1)#形成栅栏数
+    #Grid().plot_grid(300, 400)
     plt.figure(2)
     nodes.Plot_Node()
 
     plt.figure(2)
     nodes.Plot_type_Node(-1)
     plt.show()
-    plt.close(1)
+    #plt.close(1)
     plt.close(2)

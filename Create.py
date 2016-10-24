@@ -10,9 +10,9 @@ class Create(object):
         Node.angle = angle
         Node.radius = radius
         self.nums = nums
-        x = [random.random() * self.lenth for i in range(nums)]
-        y = [random.random() * self.width for i in range(nums)]
-        self.nodes = [Node(x[i], y[i]) for i in range(nums)]
+        cx = [random.random() * self.lenth for i in range(nums)]
+        cy = [random.random() * self.width for i in range(nums)]
+        self.nodes = [Node(cx[i], cy[i]) for i in range(nums)]
 
     def Plot_Node(self):
         Grid().plot_grid(self.width, self.lenth)
@@ -35,7 +35,7 @@ class Create(object):
         for i in range(self.nums):
             if self.nodes[i].type == 0:
                 self.nodes[i].plot()
-
+'''
 if __name__ == '__main__':
     a = Create(300, 400, math.pi*9/6.0, 10, 400)
     plt.figure(1)
@@ -51,3 +51,4 @@ if __name__ == '__main__':
     plt.close(1)
     plt.close(2)
     plt.close(3)
+'''
