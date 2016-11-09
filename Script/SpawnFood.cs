@@ -11,7 +11,7 @@ public class SpawnFood : MonoBehaviour
     public GameObject foodPrefab;
     List<Transform> food = new List<Transform>();
     //食物数量
-    public static int foodSub = 5;
+    public static int foodSub = 100;
     public int foodCount = 0;
     // Borders
     public Transform borderTop;

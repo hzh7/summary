@@ -5,7 +5,10 @@ using System.Linq;
 public class Snake : MonoBehaviour {
     // Current Movement Direction
     // (by default it moves to the right)
-    Vector2 dir = Vector2.right;
+    private Vector2 dir;
+    //public Vector2 speed = new Vector2(10, 10);
+    // 1 - Store the movement
+    private Vector2 movement = Vector2.right;
 
     // Keep Track of Tail
     List<Transform> tail = new List<Transform>();
@@ -13,7 +16,7 @@ public class Snake : MonoBehaviour {
     // Did the snake eat something?
     bool ate = false;
 
-    // Did the snake eat something?
+    // Did the snake is live?
     bool isLive = true;
 
     // Tail Prefab
@@ -35,23 +38,31 @@ public class Snake : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         // Move in a new Direction?
-        if (Input.GetKey(KeyCode.RightArrow))
+        /*if (Input.GetKey(KeyCode.RightArrow))
             dir = Vector2.right;
         else if (Input.GetKey(KeyCode.DownArrow))
             dir = -Vector2.up;    // '-up' means 'down'
         else if (Input.GetKey(KeyCode.LeftArrow))
             dir = -Vector2.right; // '-right' means 'left'
         else if (Input.GetKey(KeyCode.UpArrow))
-            dir = Vector2.up;
+            dir = Vector2.up;*/
+        if(Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.RightArrow)||
+            Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow))
+        {
 
+            float inputX = Input.GetAxis("Horizontal");
+            float inputY = Input.GetAxis("Vertical");
+            //Debug.Log("x:"+inputX + "    y:" + inputY);
+            movement = new Vector2(inputX, inputY);
+        }
         
-	}
+    }
 
     void Move()
     {
+        dir = movement;
         // Save current position (gap will be here)
         Vector2 v = transform.position;
-        // Debug.Log("move");
         // Move head into new direction
         transform.Translate(dir);
 
@@ -89,6 +100,8 @@ public class Snake : MonoBehaviour {
     }
     void OnTriggerEnter2D(Collider2D coll)
     {
+
+        Debug.Log("coll");
         // Food?
         if (coll.name.StartsWith("FoodPrefab"))
         {
