@@ -11,7 +11,7 @@ public class SpawnSnake : MonoBehaviour
 
     List<Transform> snakeAI = new List<Transform>();
     //she数量
-    public int snakeCount = 10;
+    public int snakeCount = 1;
     // Borders
     public Transform borderTop;
     public Transform borderBottom;
@@ -31,7 +31,7 @@ public class SpawnSnake : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < snakeCount; i++)
         {
             GameObject g = Spawn();
             snakeAI.Insert(0, g.transform);

@@ -3,13 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 public class Snake : MonoBehaviour {
+    //public static Snake Itself;
     // Current Movement Direction
     // (by default it moves to the right)
     private Vector2 dir;
-    //public Vector2 speed = new Vector2(10, 10);
+    //public Vector2 speed = new Vector2(0.01f, 0.01f);
     // 1 - Store the movement
     private Vector2 movement = Vector2.right;
 
+    //记录最后一个尾巴 s前的位置
+    Vector2 pos;
     // Keep Track of Tail
     List<Transform> tail = new List<Transform>();
 
@@ -29,8 +32,8 @@ public class Snake : MonoBehaviour {
         int len = (int)Random.Range(4, 9);
         for (int i = 0; i < len; i++)
         {
-            GameObject g = (GameObject)Instantiate(TailPrefab, transform.position, Quaternion.identity);
-            tail.Insert(0, g.transform);
+            //
+            //Invoke("Move", 2);
         }
         
 	}
@@ -52,15 +55,12 @@ public class Snake : MonoBehaviour {
 
             float inputX = Input.GetAxis("Horizontal");
             float inputY = Input.GetAxis("Vertical");
-            //Debug.Log("x:"+inputX + "    y:" + inputY);
-            movement = new Vector2(inputX, inputY);
+            double xy = System.Math.Sqrt(inputX * inputX + inputY * inputY);
+            movement = new Vector2(inputX / (float)xy, inputY / (float)xy);
         }
-        
-    }
-
-    void Move()
-    {
+        /************************************/
         dir = movement;
+        dir = dir * 0.1f;
         // Save current position (gap will be here)
         Vector2 v = transform.position;
         // Move head into new direction
@@ -70,10 +70,13 @@ public class Snake : MonoBehaviour {
         if (ate)
         {
             // Load Prefab into the world
-            GameObject g = (GameObject)Instantiate(TailPrefab, v, Quaternion.identity);
+            GameObject g = (GameObject)Instantiate(TailPrefab, Move(), Quaternion.identity);
 
             // Keep track of it in our tail list
             tail.Insert(0, g.transform);
+            
+                
+            //Invoke("Move", 0.3f);
 
             // Reset the flag
             ate = false;
@@ -90,6 +93,17 @@ public class Snake : MonoBehaviour {
         }
     }
 
+    Vector2 Move()// 记录最后一个尾巴0.3s前的位置
+    {
+        if (tail.Count == 0)
+            pos = transform.position;
+        else
+        {
+            pos = tail[tail.Count - 1].position;
+        }
+        return pos;
+    }
+
     void Live()
     {
         if (!isLive)
@@ -100,15 +114,13 @@ public class Snake : MonoBehaviour {
     }
     void OnTriggerEnter2D(Collider2D coll)
     {
-
-        Debug.Log("coll");
         // Food?
         if (coll.name.StartsWith("FoodPrefab"))
         {
             // Get longer in next Move call
             ate = true;
             //SpawnFood.foodCount--;
-            Debug.Log("撞到食物");
+            //Debug.Log("撞到食物");
             // Remove the Food
             Destroy(coll.gameObject);
 
