@@ -2,13 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityStandardAssets.CrossPlatformInput;
+
 public class Snake : MonoBehaviour {
-    //public static Snake Itself;
-    // Current Movement Direction
-    // (by default it moves to the right)
+    double Angle = 0f;//当前角度
     private Vector2 dir;
-    //public Vector2 speed = new Vector2(0.01f, 0.01f);
-    // 1 - Store the movement
     private Vector2 movement = Vector2.right;
 
     //记录最后一个尾巴 s前的位置
@@ -32,65 +30,73 @@ public class Snake : MonoBehaviour {
         int len = (int)Random.Range(4, 9);
         for (int i = 0; i < len; i++)
         {
-            //
-            //Invoke("Move", 2);
+            Vector2 p = new Vector2(transform.position.x-(i+1)*1f, transform.position.y);
+            GameObject g = (GameObject)Instantiate(TailPrefab, p, Quaternion.identity);
+            tail.Insert(i, g.transform);
+            Debug.Log(tail[i].position.x);
         }
-        
+        var moveJoystick = FindObjectOfType<Joystick>();
 	}
-	
 	// Update is called once per frame
 	void Update () {
-        // Move in a new Direction?
-        /*if (Input.GetKey(KeyCode.RightArrow))
-            dir = Vector2.right;
-        else if (Input.GetKey(KeyCode.DownArrow))
-            dir = -Vector2.up;    // '-up' means 'down'
-        else if (Input.GetKey(KeyCode.LeftArrow))
-            dir = -Vector2.right; // '-right' means 'left'
-        else if (Input.GetKey(KeyCode.UpArrow))
-            dir = Vector2.up;*/
-        if(Input.GetKey(KeyCode.LeftArrow)||Input.GetKey(KeyCode.RightArrow)||
-            Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow))
+        if (CrossPlatformInputManager.GetAxis("Horizontal")!=0 || CrossPlatformInputManager.GetAxis("Vertical")!=0)
         {
 
-            float inputX = Input.GetAxis("Horizontal");
-            float inputY = Input.GetAxis("Vertical");
+            float inputX = CrossPlatformInputManager.GetAxis("Horizontal");
+            float inputY = CrossPlatformInputManager.GetAxis("Vertical");
             double xy = System.Math.Sqrt(inputX * inputX + inputY * inputY);
             movement = new Vector2(inputX / (float)xy, inputY / (float)xy);
+            Angle = Mathf.Acos(inputX / (float)xy) / System.Math.PI*180;
         }
+        Debug.Log("angle:" + Angle);
+
+
         /************************************/
         dir = movement;
-        dir = dir * 0.1f;
         // Save current position (gap will be here)
         Vector2 v = transform.position;
         // Move head into new direction
-        transform.Translate(dir);
-
+        //Debug.Log(dir);
+        transform.Translate(dir * Time.deltaTime * 5);
+        //transform.Rotate(0, 0, (float)Angle, Space.World);
+        tail[0].transform.parent = transform;
+        tail[1].transform.parent = tail[0].transform;
+        tail[2].transform.parent = tail[1].transform;   
         // Ate something? Then insert new Element into gap
         if (ate)
         {
-            // Load Prefab into the world
             GameObject g = (GameObject)Instantiate(TailPrefab, Move(), Quaternion.identity);
-
-            // Keep track of it in our tail list
-            tail.Insert(0, g.transform);
-            
-                
-            //Invoke("Move", 0.3f);
-
-            // Reset the flag
+            tail.Insert(tail.Count-1, g.transform);
             ate = false;
         }
-        // Do we have a Tail?
         else if (tail.Count > 0)
         {
-            // Move last Tail Element to where the Head was
-            tail.Last().position = v;
-
+            /*tail.Last().position = v;
             // Add to front of list, remove from the back
             tail.Insert(0, tail.Last());
-            tail.RemoveAt(tail.Count - 1);
+            tail.RemoveAt(tail.Count - 1);*/
+            /*for (int i = tail.Count - 1; i > 0; i--)
+            {
+                /*tail[i].transform.position =new
+                    Vector2(Mathf.MoveTowards(tail[i].transform.position.x, tail[i - 1].transform.position.x,
+                    Time.deltaTime),
+                    Mathf.MoveTowards(tail[i].transform.position.y, tail[i - 1].transform.position.y, 
+                    Time.deltaTime));
+                float inputX = tail[i - 1].transform.position.x - tail[i].transform.position.x;
+                float inputY = tail[i - 1].transform.position.y - tail[i].transform.position.y;
+                double xy = System.Math.Sqrt(inputX * inputX + inputY * inputY);
+                Vector2 diri = new Vector2(inputX / (float)xy, inputY / (float)xy);
+                tail[i].transform.Translate(diri * 0.05f);
+                Debug.Log(("diri * Time.deltaTime * 5:") + diri * 0.05f);
+            }
+            float X = transform.position.x - tail[0].transform.position.x;
+            float Y = transform.position.y - tail[0].transform.position.y;
+            double xy1 = System.Math.Sqrt(X * X + Y * Y);
+            Vector2 dirii = new Vector2(X / (float)xy1, Y / (float)xy1);
+            tail[0].Translate(dirii * 0.05f);*/
+
         }
+        Debug.LogError("pause");
     }
 
     Vector2 Move()// 记录最后一个尾巴0.3s前的位置
@@ -108,8 +114,10 @@ public class Snake : MonoBehaviour {
     {
         if (!isLive)
         {
-            Debug.Log("goto gameover");
-            Application.LoadLevel("gameover");
+            //Destroy(transform.gameObject);
+            transform.gameObject.SetActive(false);
+            var gameOver = FindObjectOfType<GameOver>();
+            gameOver.ShowButtons();
         }
     }
     void OnTriggerEnter2D(Collider2D coll)
@@ -129,7 +137,6 @@ public class Snake : MonoBehaviour {
         if (coll.name.StartsWith("borderTop") || coll.name.StartsWith("borderBottom") || 
             coll.name.StartsWith("borderLeft") || coll.name.StartsWith("borderRight"))
         {
-            Debug.Log("frame");
             isLive = false;
             Live();
         }

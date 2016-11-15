@@ -67,7 +67,7 @@ public class snakeAI : MonoBehaviour
             //angle = Random.RandomRange(0, 2 * Mathf.PI);
             dir = -dir;
             //dir = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-            Debug.Log("bianhua dir");
+            //Debug.Log("bianhua dir");
         }
         if (Vector2.Distance(transform.position, playe1.transform.position) < AI_ATTACK_DISTANCE/* &&
             Vector2.Distance(transform.position, playe1.transform.position)!=0*/)
@@ -76,7 +76,7 @@ public class snakeAI : MonoBehaviour
             angle = Random.RandomRange(-dangerAngle - 1, -dangerAngle + 1);
             dir = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
             //dir = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-            Debug.Log("AI快要撞到AL");
+            //Debug.Log("AI快要撞到AL");
         }
         
         /*Vector2.Distance(transform.position, playe1.transform.position) < 10 ||
