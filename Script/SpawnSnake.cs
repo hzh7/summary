@@ -11,7 +11,7 @@ public class SpawnSnake : MonoBehaviour
 
     List<Transform> snakeAI = new List<Transform>();
     //she数量
-    public int snakeCount = 1;
+    public int snakeCount = 10;
     // Borders
     public Transform borderTop;
     public Transform borderBottom;
@@ -40,26 +40,30 @@ public class SpawnSnake : MonoBehaviour
 
     void Update()
     {
-        
+        if (snakeAI.Count < snakeCount)
+        {
+            GameObject g = Spawn();
+            snakeAI.Insert(0, g.transform);
+        }
     }
-    public int getsnakeCount()
+    public int getSnakeCount()
     {
         return snakeCount;
     }
-    public void setsnakeCount()
+    public void setSnakeCount(Transform a)
     {
-        snakeCount -= 1;
+        snakeAI.Remove(a);
     }
-    // Spawn one piece of food
+    // Spawn one piece of snake
     GameObject Spawn()
     {
         // x position between left & right border
-        int x = (int)Random.Range(borderLeft.position.x,
-                                  borderRight.position.x);
+        int x = (int)Random.Range(borderLeft.position.x+10,
+                                  borderRight.position.x-10);
 
         // y position between top & bottom border
-        int y = (int)Random.Range(borderBottom.position.y,
-                                  borderTop.position.y);
+        int y = (int)Random.Range(borderBottom.position.y+10,
+                                  borderTop.position.y-10);
 
         // Instantiate the food at (x, y)
         GameObject Gobj = (GameObject)Instantiate(SnakePrefab,
@@ -67,5 +71,4 @@ public class SpawnSnake : MonoBehaviour
                     Quaternion.identity); // default rotation
         return Gobj;
     }
-
 }

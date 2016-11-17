@@ -13,27 +13,26 @@ public class Snake : MonoBehaviour {
     Vector2 pos;
     // Keep Track of Tail
     List<Transform> tail = new List<Transform>();
-
+    List<Transform> Body = new List<Transform>();
     // Did the snake eat something?
     bool ate = false;
 
     // Did the snake is live?
     bool isLive = true;
 
-    // Tail Prefab
-    public GameObject TailPrefab;
-
+    // PlayerTail Prefab
+    public GameObject PlayerTailPrefab;
+    public GameObject BodyPrefab;
 	// Use this for initialization
 	void Start () {
         // Move the Snake every 300ms
-        InvokeRepeating("Move", 0.3f, 0.3f);
-        int len = (int)Random.Range(4, 9);
+        InvokeRepeating("Move", 0.3f, Time.deltaTime );
+        int len = (int)Random.Range(10, 20);
         for (int i = 0; i < len; i++)
         {
             Vector2 p = new Vector2(transform.position.x-(i+1)*1f, transform.position.y);
-            GameObject g = (GameObject)Instantiate(TailPrefab, p, Quaternion.identity);
+            GameObject g = (GameObject)Instantiate(PlayerTailPrefab, p, Quaternion.identity);
             tail.Insert(i, g.transform);
-            Debug.Log(tail[i].position.x);
         }
         var moveJoystick = FindObjectOfType<Joystick>();
 	}
@@ -48,66 +47,37 @@ public class Snake : MonoBehaviour {
             movement = new Vector2(inputX / (float)xy, inputY / (float)xy);
             Angle = Mathf.Acos(inputX / (float)xy) / System.Math.PI*180;
         }
-        Debug.Log("angle:" + Angle);
-
+        //Debug.Log("angle:" + Angle);
+        dir = movement;
 
         /************************************/
-        dir = movement;
-        // Save current position (gap will be here)
+
+        //Debug.LogError("pause");
+    }
+
+    void Move()
+    {
+        if (!isLive) {
+            dir = Vector2.zero;
+        }
         Vector2 v = transform.position;
-        // Move head into new direction
-        //Debug.Log(dir);
-        transform.Translate(dir * Time.deltaTime * 5);
-        //transform.Rotate(0, 0, (float)Angle, Space.World);
-        tail[0].transform.parent = transform;
-        tail[1].transform.parent = tail[0].transform;
-        tail[2].transform.parent = tail[1].transform;   
+        transform.Translate(dir*Time.deltaTime*3 );
+
         // Ate something? Then insert new Element into gap
         if (ate)
         {
-            GameObject g = (GameObject)Instantiate(TailPrefab, Move(), Quaternion.identity);
-            tail.Insert(tail.Count-1, g.transform);
+            // Load Prefab into the world
+            GameObject g = (GameObject)Instantiate(PlayerTailPrefab, v, Quaternion.identity);
+            tail.Insert(0, g.transform);
             ate = false;
         }
         else if (tail.Count > 0)
         {
-            /*tail.Last().position = v;
-            // Add to front of list, remove from the back
+            tail.Last().position = v;
             tail.Insert(0, tail.Last());
-            tail.RemoveAt(tail.Count - 1);*/
-            /*for (int i = tail.Count - 1; i > 0; i--)
-            {
-                /*tail[i].transform.position =new
-                    Vector2(Mathf.MoveTowards(tail[i].transform.position.x, tail[i - 1].transform.position.x,
-                    Time.deltaTime),
-                    Mathf.MoveTowards(tail[i].transform.position.y, tail[i - 1].transform.position.y, 
-                    Time.deltaTime));
-                float inputX = tail[i - 1].transform.position.x - tail[i].transform.position.x;
-                float inputY = tail[i - 1].transform.position.y - tail[i].transform.position.y;
-                double xy = System.Math.Sqrt(inputX * inputX + inputY * inputY);
-                Vector2 diri = new Vector2(inputX / (float)xy, inputY / (float)xy);
-                tail[i].transform.Translate(diri * 0.05f);
-                Debug.Log(("diri * Time.deltaTime * 5:") + diri * 0.05f);
-            }
-            float X = transform.position.x - tail[0].transform.position.x;
-            float Y = transform.position.y - tail[0].transform.position.y;
-            double xy1 = System.Math.Sqrt(X * X + Y * Y);
-            Vector2 dirii = new Vector2(X / (float)xy1, Y / (float)xy1);
-            tail[0].Translate(dirii * 0.05f);*/
-
+            tail.RemoveAt(tail.Count - 1);
         }
-        Debug.LogError("pause");
-    }
 
-    Vector2 Move()// 记录最后一个尾巴0.3s前的位置
-    {
-        if (tail.Count == 0)
-            pos = transform.position;
-        else
-        {
-            pos = tail[tail.Count - 1].position;
-        }
-        return pos;
     }
 
     void Live()
@@ -116,6 +86,17 @@ public class Snake : MonoBehaviour {
         {
             //Destroy(transform.gameObject);
             transform.gameObject.SetActive(false);
+            for (int i = 0; i < tail.Count; i++) {
+                tail[i].gameObject.SetActive(false);
+            }
+
+            for (int i = 0; i < tail.Count; i+=10)
+            {
+                Vector2 v = tail[i].position;
+                GameObject g = SpawnBody(v);
+                Body.Insert(0, g.transform);
+            }
+
             var gameOver = FindObjectOfType<GameOver>();
             gameOver.ShowButtons();
         }
@@ -127,15 +108,11 @@ public class Snake : MonoBehaviour {
         {
             // Get longer in next Move call
             ate = true;
-            //SpawnFood.foodCount--;
-            //Debug.Log("撞到食物");
-            // Remove the Food
             Destroy(coll.gameObject);
-
-            SpawnFood.Instance.setFoodCount();
+            SpawnFood.Instance.setFoodCount(coll.gameObject.transform);
         }
-        if (coll.name.StartsWith("borderTop") || coll.name.StartsWith("borderBottom") || 
-            coll.name.StartsWith("borderLeft") || coll.name.StartsWith("borderRight"))
+        if (coll.name.StartsWith("borderTop") || coll.name.StartsWith("borderBottom") ||
+            coll.name.StartsWith("borderLeft") || coll.name.StartsWith("borderRight")) //|| coll.name.StartsWith("TailPrefab(Clone)")
         {
             isLive = false;
             Live();
@@ -146,5 +123,11 @@ public class Snake : MonoBehaviour {
             // ToDo 'You lose' screen
         }
     }
-
+    GameObject SpawnBody(Vector2 v)
+    {
+       GameObject Gobj = (GameObject)Instantiate(BodyPrefab, v,
+                    Quaternion.identity); 
+        //Gobj.GetComponent<Renderer>().material.color = RandomColor();
+        return Gobj;
+    }
 }
