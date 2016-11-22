@@ -40,8 +40,10 @@ public class SpawnSnake : MonoBehaviour
 
     void Update()
     {
+        //Debug.Log("spawnsnake");
         if (snakeAI.Count < snakeCount)
         {
+            Debug.Log(snakeAI.Count);
             GameObject g = Spawn();
             snakeAI.Insert(0, g.transform);
         }
@@ -69,6 +71,8 @@ public class SpawnSnake : MonoBehaviour
         GameObject Gobj = (GameObject)Instantiate(SnakePrefab,
                     new Vector2(x, y),
                     Quaternion.identity); // default rotation
+        
+        //Gobj
         return Gobj;
     }
 }
