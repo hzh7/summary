@@ -54,21 +54,14 @@ public class SpawnFood : MonoBehaviour
     {
         food.Remove(a);
     }
-    // Spawn one piece of food
     GameObject Spawn()
     {
-        // x position between left & right border
         float x = (float)Random.Range(borderLeft.position.x,
                                   borderRight.position.x);
-
-        // y position between top & bottom border
         float y = (float)Random.Range(borderBottom.position.y,
                                   borderTop.position.y);
-
-        // Instantiate the food at (x, y)
         GameObject Gobj = (GameObject)Instantiate(foodPrefab,
-                    new Vector2(x, y),
-                    Quaternion.identity); // default rotation
+                    new Vector2(x, y),Quaternion.identity); 
         Gobj.GetComponent<Renderer>().material.color = RandomColor(); 
        // Gobj.Renderer.material.color = Color.red;
         return Gobj;

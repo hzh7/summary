@@ -10,9 +10,7 @@ public class SpawnSnake : MonoBehaviour
     public GameObject TailPrefab;
 
     List<Transform> snakeAI = new List<Transform>();
-    //she数量
     public int snakeCount = 10;
-    // Borders
     public Transform borderTop;
     public Transform borderBottom;
     public Transform borderLeft;
@@ -20,7 +18,6 @@ public class SpawnSnake : MonoBehaviour
 
     void Awake()
     {
-        // Register the singleton
         if (Instance != null)
         {
             Debug.LogError("Multiple instances of SpecialEffectsHelper!");
@@ -28,7 +25,6 @@ public class SpawnSnake : MonoBehaviour
         Instance = this;
     }
 
-    // Use this for initialization
     void Start()
     {
         for (int i = 0; i < snakeCount; i++)
@@ -40,10 +36,8 @@ public class SpawnSnake : MonoBehaviour
 
     void Update()
     {
-        //Debug.Log("spawnsnake");
         if (snakeAI.Count < snakeCount)
         {
-            Debug.Log(snakeAI.Count);
             GameObject g = Spawn();
             snakeAI.Insert(0, g.transform);
         }
@@ -56,23 +50,14 @@ public class SpawnSnake : MonoBehaviour
     {
         snakeAI.Remove(a);
     }
-    // Spawn one piece of snake
     GameObject Spawn()
     {
-        // x position between left & right border
         int x = (int)Random.Range(borderLeft.position.x+10,
                                   borderRight.position.x-10);
-
-        // y position between top & bottom border
         int y = (int)Random.Range(borderBottom.position.y+10,
                                   borderTop.position.y-10);
-
-        // Instantiate the food at (x, y)
         GameObject Gobj = (GameObject)Instantiate(SnakePrefab,
-                    new Vector2(x, y),
-                    Quaternion.identity); // default rotation
-        
-        //Gobj
+                    new Vector2(x, y),Quaternion.identity); 
         return Gobj;
     }
 }

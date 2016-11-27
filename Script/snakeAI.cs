@@ -9,7 +9,7 @@ public class snakeAI : MonoBehaviour
     bool isLive = true;
     float Angle = 0f;//当前角度
     double tarAngle = 0f;
-    // Keep Track of Tail
+    Color color;
     List<Transform> tail = new List<Transform>();
     List<Transform> Body = new List<Transform>();
     List<Vector2> posi = new List<Vector2>();
@@ -31,23 +31,23 @@ public class snakeAI : MonoBehaviour
     bool dange = false;
     int eatsmafdcnt = 6;//每吃6个小点长一节尾巴
     //敌人的巡逻范围
-    public const int AI_ATTACK_DISTANCE = 5;
+    public const float AI_ATTACK_DISTANCE = 5f;
     public bool isHatred = false;
     bool iszhuan = false;
     Quaternion targetRotation;
-    // Use this for initialization
     void Start()
     {
-        Debug.Log(transform.tag);
-        Angle = Random.RandomRange(0, 2 * Mathf.PI);
-        dir = new Vector2(Mathf.Cos(Angle), Mathf.Sin(Angle));
+        //dir = new Vector2(Mathf.Cos(Angle), Mathf.Sin(Angle));
+        color = RandomColor();
+
         InvokeRepeating("Move", 0f, Time.deltaTime);
-        InvokeRepeating("Changedirection", 0f, Time.deltaTime*10);
+        InvokeRepeating("Changedirection", 0f, Time.deltaTime * 10);
         int len = (int)Random.Range(3, 6);
         for (int i = 0; i < len; i++)
         {
             Vector2 p = new Vector2(transform.position.x - (i + 1) * 1f, transform.position.y);
             GameObject g = (GameObject)Instantiate(TailPrefab, p, Quaternion.identity);
+            g.GetComponent<Renderer>().material.color = color;
             tail.Insert(i, g.transform);
         }
         for (int i = 0; i < len * disnub + 1; i++)
@@ -55,10 +55,12 @@ public class snakeAI : MonoBehaviour
             Vector2 p = new Vector2(transform.position.x - i * 1 / (float)disnub, transform.position.y);
             posi.Add(p);
         }
+        /*Collider2D hitColliders = Physics2D.OverlapCircle(transform.position, 5f);
+        Debug.Log("hitColliders" + hitColliders);*/
+         
         //playe0 = GameObject.FindGameObjectWithTag("Player"); playe1 = GameObject.FindGameObjectsWithTag("TailPrefab(Clone)");
     }
 
-    // Update is called once per frame
     void Update()
     {
         
@@ -66,7 +68,13 @@ public class snakeAI : MonoBehaviour
         {
             dir = Vector2.zero;
         }
-        phxz();
+        Angle = transform.GetComponent<Transform>().localEulerAngles.z;
+        Angle = (Angle > 180 ? Angle - 360 : Angle);
+        if (Angle != tarAngle)
+        {
+            targetRotation = Quaternion.Euler(0f, 0f, (float)tarAngle);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 3);
+        }
     }
     void Move()
     {
@@ -80,6 +88,7 @@ public class snakeAI : MonoBehaviour
             {
                 Vector2 p = posi[posi.Count - 1];
                 GameObject g = (GameObject)Instantiate(TailPrefab, p, Quaternion.identity);
+                g.GetComponent<Renderer>().material.color = color;
                 tail.Insert(tail.Count - 1, g.transform);
                 ate = false;
                 mycount = disnub;
@@ -99,28 +108,17 @@ public class snakeAI : MonoBehaviour
             posi.RemoveAt(posi.Count - 1);
         }
     }
-    void phxz()
-    {
-        
-        Angle = transform.GetComponent<Transform>().localEulerAngles.z;
-        Angle = (Angle > 180 ? Angle - 360 : Angle);
-        if (Angle != tarAngle)
-        {
-            targetRotation = Quaternion.Euler(0f, 0f, (float)tarAngle);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 3);
-        }
-    }
+
     void Changedirection()
     {
-        //Debug.Log("Changedirection");
-        if (playe0 != null && Vector2.Distance(transform.position, playe0.transform.position) < AI_ATTACK_DISTANCE)
+        /*if (playe0 != null && Vector2.Distance(transform.position, playe0.transform.position) < AI_ATTACK_DISTANCE)
         {
             tarAngle += Vector2.Angle(transform.position, playe0.transform.position);
             Debug.Log("AI和蛇很近");
             Debug.Log(Vector2.Angle(transform.position, playe0.transform.position));
         }
         //GameObject go;
-        /*foreach (GameObject go in playe1) 
+        foreach (GameObject go in playe1) 
         {
             if (Vector2.Distance(transform.position, go.transform.position) < AI_ATTACK_DISTANCE &&
                 Vector2.Distance(transform.position, go.transform.position) > 0)
@@ -130,19 +128,34 @@ public class snakeAI : MonoBehaviour
             }
         }*/
         
-
-        if (transform.position.x < 10 || transform.position.x > 190 ||
-            transform.position.y < 10 || transform.position.y > 90)
+        //Debug.Log("hit   "+hitColliders);
+        
+        if (transform.position.x < 10 )
         {
-             Debug.Log("AI快要撞到frame");
-            //tarAngle += Random.Range(0, 90);
-           
+            //Debug.Log("transform.position.x" + transform.position.x + "    tarAanle" + tarAngle);
+            tarAngle = 10;
+            //Debug.Log("  after  tarAanle" + tarAngle);
+
+        } 
+        if ( transform.position.x > 190 )
+        {
+            tarAngle = 160;
+
+        } 
+        if (transform.position.y < 10 )
+        {
+            tarAngle = 100;
+
+        } 
+        if (transform.position.y > 90)
+        {
+            tarAngle = -80;
+
         }
         else
         {
             if (Random.Range(0, 100) >= 80)
             {
-                //Debug.Log("随机转弯");
                 tarAngle += Random.Range(-90, 90);
             }
         }
@@ -156,9 +169,11 @@ public class snakeAI : MonoBehaviour
             {
                 Destroy(tail[i].gameObject);
             }
-            for (int i = 0; i < tail.Count; i += 2)
+            for (int i = 0; i < tail.Count; i++)
             {
                 Vector2 v = tail[i].position;
+                v.x += Random.Range(-0.5f,0.5f);
+                v.y += Random.Range(-0.5f, 0.5f);
                 GameObject g = SpawnBody(v);
                 Body.Insert(0, g.transform);
             }
@@ -167,7 +182,6 @@ public class snakeAI : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D coll)
     {
-        // Food?
         if (coll.name.StartsWith("FoodPrefab"))
         {
             eatsmafdcnt--;
@@ -191,7 +205,6 @@ public class snakeAI : MonoBehaviour
             for(int i=0;i<tail.Count;i++){
                 if (coll.transform == tail[i])
                 {
-                    //Debug.Log("flag");
                     flag = true;
                     break;
                 }
@@ -201,6 +214,13 @@ public class snakeAI : MonoBehaviour
             {
                 SpawnSnake.Instance.setSnakeCount(transform);
             }
+            Live();
+        }
+        if (coll.name.StartsWith("PlayerTailPrefab"))
+        {
+            Snake.InstanceSnake.KillSnake();
+            isLive = false;
+            SpawnSnake.Instance.setSnakeCount(transform);
             Live();
         }
 
@@ -218,7 +238,20 @@ public class snakeAI : MonoBehaviour
     {
         GameObject Gobj = (GameObject)Instantiate(BodyPrefab, v,
                      Quaternion.identity);
-        //Gobj.GetComponent<Renderer>().material.color = RandomColor();
+        Gobj.GetComponent<Renderer>().material.color = color;
         return Gobj;
+    }
+
+    Color RandomColor()
+    {
+        //随机颜色的RGB值。即刻得到一个随机的颜色
+        List<Color> co = new List<Color>();
+        co.Insert(0, Color.blue);
+        co.Insert(0, Color.cyan);
+        co.Insert(0, Color.green);
+        co.Insert(0, Color.red);
+        co.Insert(0, Color.yellow);
+        int index = Random.Range(0, 5);
+        return co[index];
     }
 }
