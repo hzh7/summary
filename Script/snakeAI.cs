@@ -159,6 +159,12 @@ public class snakeAI : MonoBehaviour
                 tarAngle += Random.Range(-90, 90);
             }
         }
+        /*按比例放大*/
+        transform.localScale = new Vector3(tail.Count * 0.001f + 0.4f, tail.Count * 0.001f + 0.4f, 1f);
+        for (int i = 0; i < tail.Count; i++)
+        {
+            tail[i].transform.localScale = transform.localScale;
+        }
     }
     void Live()
     {

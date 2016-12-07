@@ -51,7 +51,6 @@ public class Snake : MonoBehaviour {
         }
         //Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, 0.5f);
         //Debug.Log("hitColliders" + hitColliders);
-          
 	}
 	void Update () {
         Angle = transform.GetComponent<Transform>().localEulerAngles.z;
@@ -61,10 +60,21 @@ public class Snake : MonoBehaviour {
             targetRotation = Quaternion.Euler(0f, 0f, (float)tarAngle);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 3);
         }
-
         score = tail.Count * 6 + eatsmafdcnt;
+        transform.localScale = new Vector3(tail.Count * 0.001f + 0.4f, tail.Count * 0.001f + 0.4f, 1f);
+        for (int i = 0; i < tail.Count; i++)
+        {
+            tail[i].transform.localScale = transform.localScale;
+        }
     }
-
+    public int getScore()
+    {
+        return score;
+    }
+    public int getKillnub()
+    {
+        return killnub;
+    }
     void Move()
     {
         if (!isLive) {
@@ -121,6 +131,8 @@ public class Snake : MonoBehaviour {
     {
         if (!isLive)
         {
+            GameObject.Find("script").GetComponent<UDPsocket>().Main();
+
             transform.gameObject.SetActive(false);
             for (int i = 0; i < tail.Count; i++) {
                 tail[i].gameObject.SetActive(false);
@@ -136,14 +148,10 @@ public class Snake : MonoBehaviour {
             }
             var gameOver = FindObjectOfType<GameOver>();
             gameOver.ShowButtons();
+            
         }
     }
-    void OnGUI()
-    {
-        GUI.Label(new Rect(0, 0, 100, 100), "当前长度：" + score);
-        GUI.Label(new Rect(0, 20, 100, 100), "杀击数：" + killnub);
-        GUI.skin.label.normal.textColor = Color.red;
-    }
+    
     void OnTriggerEnter2D(Collider2D coll)
     {
         if (coll.name.StartsWith("FoodPrefab"))
