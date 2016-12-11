@@ -148,6 +148,7 @@ public class Snake : MonoBehaviour {
             }
             var gameOver = FindObjectOfType<GameOver>();
             gameOver.ShowButtons();
+            gameOver.ShowImage();
             
         }
     }

@@ -16,7 +16,7 @@ public class Leaderboard : MonoBehaviour {
         GUI.Label(new Rect(0, 20, 1000, 100), "杀击：" + getkil());
         GUI.skin.label.normal.textColor = Color.red;
     }
-    int getSco()
+    public int getSco()
     {
         if(GameObject.Find("snakeHead") != null){
             sco = GameObject.Find("snakeHead").GetComponent<Snake>().getScore();
@@ -24,7 +24,7 @@ public class Leaderboard : MonoBehaviour {
         //Debug.Log("sce: " + sco);
         return sco;
     }
-    int getkil()
+    public int getkil()
     {
         if (GameObject.Find("snakeHead") != null)
         {

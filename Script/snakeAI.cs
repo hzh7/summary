@@ -27,7 +27,7 @@ public class snakeAI : MonoBehaviour
     private GameObject[] playe1;
     //private GameObject playe2;
     //private GameObject playe3;
-    private GameObject go;
+    //private GameObject go;
     bool dange = false;
     int eatsmafdcnt = 6;//每吃6个小点长一节尾巴
     //敌人的巡逻范围
@@ -35,6 +35,11 @@ public class snakeAI : MonoBehaviour
     public bool isHatred = false;
     bool iszhuan = false;
     Quaternion targetRotation;
+
+    //用于换肤
+    public Sprite[] textures;
+    int texturenub = 1;
+
     void Start()
     {
         //dir = new Vector2(Mathf.Cos(Angle), Mathf.Sin(Angle));
@@ -57,7 +62,9 @@ public class snakeAI : MonoBehaviour
         }
         /*Collider2D hitColliders = Physics2D.OverlapCircle(transform.position, 5f);
         Debug.Log("hitColliders" + hitColliders);*/
-         
+        textures = Resources.LoadAll<Sprite>("skin");
+        texturenub = Random.Range(0, textures.Length);
+        gameObject.GetComponent<SpriteRenderer>().sprite = textures[texturenub];
         //playe0 = GameObject.FindGameObjectWithTag("Player"); playe1 = GameObject.FindGameObjectsWithTag("TailPrefab(Clone)");
     }
 
