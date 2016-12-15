@@ -22,7 +22,7 @@ public class Snake : MonoBehaviour {
     int disnub = 10;//一节身体移动到前一节的步数
     int mycount = 10;//记录吃掉食物后5帧在长尾巴
     int eatsmafdcnt = 0;//每吃6个小点长一节尾巴
-
+    int yanshi = 30;//用于加速延迟拉屎
     
     Quaternion targetRotation;
 
@@ -115,7 +115,6 @@ public class Snake : MonoBehaviour {
     }
     public void JoyStickControlMove(Vector2 direction)
     {
-        //Debug.Log("direction.x  " + direction.x + "   direction.y" + direction.y);
         float inputX = direction.x;
         float inputY = direction.y;
         double xy = System.Math.Sqrt(inputX * inputX + inputY * inputY);
@@ -124,8 +123,26 @@ public class Snake : MonoBehaviour {
     }
     public void ButtonControlPressed()
     {
-        Move();
-        //Move();
+        if (score > 24)//实现加速拉屎，身体变短
+        {
+            if (yanshi > 0)
+            {
+                yanshi--;
+            }
+            else if (eatsmafdcnt > 0)
+            {
+                eatsmafdcnt--;
+                yanshi = 30;
+                SpawnFood.Instance.Spawn(tail[tail.Count - 1].transform.position);
+            }
+            else
+            {
+                Destroy(tail[tail.Count - 1].gameObject);
+                tail.Remove(tail[tail.Count-1]);
+                eatsmafdcnt = 6;
+            }
+            Move();
+        }
     }
     void Live()
     {

@@ -33,8 +33,7 @@ public class SpawnFood : MonoBehaviour
     {
         for (int i = 0; i < foodCount; i++)
         {
-            GameObject g = Spawn();
-            food.Insert(0, g.transform);
+            Spawn();
         }
     }
 
@@ -42,8 +41,7 @@ public class SpawnFood : MonoBehaviour
     {        
         if (food.Count < foodCount)
         {
-            GameObject g = Spawn();
-            food.Insert(0, g.transform); 
+            Spawn();
         }
     }
     public int getFoodCount()
@@ -54,18 +52,26 @@ public class SpawnFood : MonoBehaviour
     {
         food.Remove(a);
     }
-    GameObject Spawn()
+
+    void Spawn()
     {
         float x = (float)Random.Range(borderLeft.position.x,
                                   borderRight.position.x);
         float y = (float)Random.Range(borderBottom.position.y,
                                   borderTop.position.y);
         GameObject Gobj = (GameObject)Instantiate(foodPrefab,
-                    new Vector2(x, y),Quaternion.identity); 
-        Gobj.GetComponent<Renderer>().material.color = RandomColor(); 
-       // Gobj.Renderer.material.color = Color.red;
-        return Gobj;
+                    new Vector2(x, y), Quaternion.identity);
+        Gobj.GetComponent<Renderer>().material.color = RandomColor();
+        food.Insert(0, Gobj.transform);
     }
+    public void Spawn(Vector2 p)
+    {
+        GameObject Gobj = (GameObject)Instantiate(foodPrefab,
+                    p, Quaternion.identity);
+        Gobj.GetComponent<Renderer>().material.color = RandomColor();
+        food.Insert(0, Gobj.transform);
+    }
+
     Color RandomColor()
     {
         //随机颜色的RGB值。即刻得到一个随机的颜色

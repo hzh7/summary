@@ -50,7 +50,7 @@ public class GameOver : MonoBehaviour {
     public void ExitToMenu()
     {
         // Reload the level
-        //Application.LoadLevel("Menu");
+        Application.LoadLevel("Menu 1");
     }
 
     //重来
