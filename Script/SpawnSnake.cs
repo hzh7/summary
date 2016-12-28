@@ -16,6 +16,9 @@ public class SpawnSnake : MonoBehaviour
     public Transform borderLeft;
     public Transform borderRight;
 
+    //用于换肤
+    public Sprite[] textures;
+    int texturenub = 1;
     void Awake()
     {
         if (Instance != null)
@@ -27,9 +30,12 @@ public class SpawnSnake : MonoBehaviour
 
     void Start()
     {
+        textures = Resources.LoadAll<Sprite>("skin");
+        texturenub = Random.Range(0, textures.Length);
         for (int i = 0; i < snakeCount; i++)
         {
             GameObject g = Spawn();
+            
             snakeAI.Insert(0, g.transform);
         }
     }
@@ -50,6 +56,10 @@ public class SpawnSnake : MonoBehaviour
     {
         snakeAI.Remove(a);
     }
+    public List<Transform> getSnakeAIs()
+    {
+        return snakeAI;
+    }
     GameObject Spawn()
     {
         int x = (int)Random.Range(borderLeft.position.x+10,
@@ -57,7 +67,9 @@ public class SpawnSnake : MonoBehaviour
         int y = (int)Random.Range(borderBottom.position.y+10,
                                   borderTop.position.y-10);
         GameObject Gobj = (GameObject)Instantiate(SnakePrefab,
-                    new Vector2(x, y),Quaternion.identity); 
+                    new Vector2(x, y),Quaternion.identity);
+        Gobj.GetComponent<SpriteRenderer>().sprite = textures[texturenub];
         return Gobj;
     }
+
 }

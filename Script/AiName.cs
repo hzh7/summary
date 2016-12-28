@@ -53,7 +53,10 @@ public class AiName : MonoBehaviour {
         }*/
         //Debug.Log("namerandom: "+names[1]);
     }
-
+    public string getName()
+    {
+        return this.Ainame;
+    }
     //获取随机名
     public static string getRandomName()
     {

@@ -6,9 +6,9 @@ using UnityStandardAssets.CrossPlatformInput;
 
 public class Snake : MonoBehaviour {
     public static Snake InstanceSnake;
+    Transform myTransform;
     double Angle = 0f;//当前角度
     double tarAngle = 0f;
-    int speed = 5;
     private Vector2 dir = Vector2.right;
     List<Transform> tail = new List<Transform>();
     List<Transform> Body = new List<Transform>();
@@ -23,8 +23,13 @@ public class Snake : MonoBehaviour {
     int mycount = 10;//记录吃掉食物后5帧在长尾巴
     int eatsmafdcnt = 0;//每吃6个小点长一节尾巴
     int yanshi = 30;//用于加速延迟拉屎
-    
+    bool enChuan = true;
     Quaternion targetRotation;
+
+    //move里用到的变量
+    Vector2 mv;
+    Vector2 mp;
+    GameObject mg;
 
     void Awake()
     {
@@ -34,38 +39,46 @@ public class Snake : MonoBehaviour {
             Debug.LogError("Multiple instances of SpecialEffectsHelper!");
         }
         InstanceSnake = this;
+        myTransform = transform;
     }
 	void Start () {
         InvokeRepeating("Move", 0f, Time.deltaTime );
         int len = 4;
         for (int i = 0; i < len; i++)
         {
-            Vector2 p = new Vector2(transform.position.x-(i+1)*1f, transform.position.y);
+            Vector2 p = new Vector2(myTransform.position.x-(i+1)*1f, myTransform.position.y);
             GameObject g = (GameObject)Instantiate(PlayerTailPrefab, p, Quaternion.identity);
             tail.Insert(i, g.transform);
         }
         for (int i = 0; i < len * disnub + 1; i++)
         {
-            Vector2 p = new Vector2(transform.position.x - i * 1 / (float)disnub, transform.position.y);
+            Vector2 p = new Vector2(myTransform.position.x - i * 1 / (float)disnub, myTransform.position.y);
             posi.Add(p);
         }
         //Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, 0.5f);
         //Debug.Log("hitColliders" + hitColliders);
 	}
 	void Update () {
-        Angle = transform.GetComponent<Transform>().localEulerAngles.z;
+        //Angle = transform.GetComponent<Transform>().localEulerAngles.z;
+        Angle = myTransform.localEulerAngles.z;
         Angle = (Angle > 180 ? Angle - 360 : Angle);
         if (Angle != tarAngle)
         {
             targetRotation = Quaternion.Euler(0f, 0f, (float)tarAngle);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 3);
+            myTransform.rotation = Quaternion.Slerp(myTransform.rotation, targetRotation, Time.deltaTime *5);
         }
         score = tail.Count * 6 + eatsmafdcnt;
-        transform.localScale = new Vector3(tail.Count * 0.001f + 0.4f, tail.Count * 0.001f + 0.4f, 1f);
+        myTransform.localScale = new Vector3(tail.Count * 0.001f + 0.5f, tail.Count * 0.001f + 0.5f, 1f);
         for (int i = 0; i < tail.Count; i++)
         {
-            tail[i].transform.localScale = transform.localScale;
+            tail[i].transform.localScale = myTransform.localScale;
         }
+        /*if (!isLive)
+        {
+            CancelInvoke("Move");dir = Vector2.zero;
+            Debug.Log("ccccc");
+        }*/
+        
     }
     public int getScore()
     {
@@ -77,31 +90,27 @@ public class Snake : MonoBehaviour {
     }
     void Move()
     {
-        if (!isLive) {
-            dir = Vector2.zero;
-        }
-        Vector2 v = transform.position;
-        transform.Translate(dir * Time.deltaTime * speed);
+        myTransform.Translate(dir * Time.deltaTime * 5);
         if (ate)
         {
-            posi.Insert(0, transform.position);
+            posi.Insert(0, myTransform.position);
             mycount--;
             if (mycount == 0)
             {
-                Vector2 p = posi[posi.Count - 1];
-                GameObject g = (GameObject)Instantiate(PlayerTailPrefab, p, Quaternion.identity);
-                tail.Insert(tail.Count - 1, g.transform);
+                mp = posi[posi.Count - 1];
+                mg = (GameObject)Instantiate(PlayerTailPrefab, mp, Quaternion.identity);
+                tail.Insert(tail.Count - 1, mg.transform);
                 ate = false;
                 mycount = disnub;
             }
             for (int i = 0; i < tail.Count; i++)
             {
                 tail[i].position = posi[(i + 1) * disnub];
-            }            
+            }
         }
         else if (tail.Count > 0)
         {
-            posi.Insert(0, transform.position);
+            posi.Insert(0, myTransform.position);
             for (int i = 0; i < tail.Count; i++)
             {
                 tail[i].position = posi[(i + 1) * disnub];
@@ -123,7 +132,7 @@ public class Snake : MonoBehaviour {
     }
     public void ButtonControlPressed()
     {
-        if (score > 24)//实现加速拉屎，身体变短
+        if (isLive && score > 24)//实现加速拉屎，身体变短
         {
             if (yanshi > 0)
             {
@@ -149,10 +158,12 @@ public class Snake : MonoBehaviour {
         if (!isLive)
         {
             GameObject.Find("script").GetComponent<UDPsocket>().Main();
-
+            CancelInvoke("Move");
+            dir = Vector2.zero; 
             transform.gameObject.SetActive(false);
             for (int i = 0; i < tail.Count; i++) {
-                tail[i].gameObject.SetActive(false);
+                Destroy(tail[i].gameObject);
+                //tail[i].gameObject.SetActive(false);
             }
 
             for (int i = 0; i < tail.Count; i++)
@@ -166,7 +177,6 @@ public class Snake : MonoBehaviour {
             var gameOver = FindObjectOfType<GameOver>();
             gameOver.ShowButtons();
             gameOver.ShowImage();
-            
         }
     }
     
@@ -193,6 +203,19 @@ public class Snake : MonoBehaviour {
         {
             isLive = false;
             Live();
+        }
+        if (coll.name.StartsWith("chuansongmenPrefab"))
+        {
+            if (enChuan)
+            {
+                enChuan = false;
+                Vector2 v = GameObject.Find("script").GetComponent<CsDoor>().ChuanSong(coll);
+                transform.position = v;
+            }
+            else
+            {
+                enChuan = true;
+            }
         }
         if (coll.name.StartsWith("TailPrefab"))
         {

@@ -4,12 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 public class snakeAI : MonoBehaviour
 {
+    Transform myTransform;
     int snakeID;
     Vector2 dir = Vector2.right;
     bool isLive = true;
     float Angle = 0f;//当前角度
     double tarAngle = 0f;
-    Color color;
+    Color[] color = new Color[2];
+    int chColor = 0;
+    int score = 0;
     List<Transform> tail = new List<Transform>();
     List<Transform> Body = new List<Transform>();
     List<Vector2> posi = new List<Vector2>();
@@ -21,13 +24,8 @@ public class snakeAI : MonoBehaviour
     public GameObject BodyPrefab;
     const int disnub = 10;//一节身体移动到前一节的步数
     int mycount = disnub;//记录吃掉食物后5帧在长尾巴
-    //private int enemyState;
-    //获取要追踪的对象
     private GameObject playe0;
     private GameObject[] playe1;
-    //private GameObject playe2;
-    //private GameObject playe3;
-    //private GameObject go;
     bool dange = false;
     int eatsmafdcnt = 6;//每吃6个小点长一节尾巴
     //敌人的巡逻范围
@@ -35,68 +33,70 @@ public class snakeAI : MonoBehaviour
     public bool isHatred = false;
     bool iszhuan = false;
     Quaternion targetRotation;
+    bool enChuan = true;
+    //move用到的变量
+    Vector2 mv;
+    Vector2 mp;
+    GameObject mg;
 
-    //用于换肤
-    public Sprite[] textures;
-    int texturenub = 1;
-
+    void Awake()
+    {
+        myTransform = transform;
+    }
     void Start()
     {
-        //dir = new Vector2(Mathf.Cos(Angle), Mathf.Sin(Angle));
-        color = RandomColor();
-
+        color[0] = RandomColor();
+        color[1] = RandomColor();
         InvokeRepeating("Move", 0f, Time.deltaTime);
         InvokeRepeating("Changedirection", 0f, Time.deltaTime * 10);
         int len = (int)Random.Range(3, 6);
         for (int i = 0; i < len; i++)
         {
-            Vector2 p = new Vector2(transform.position.x - (i + 1) * 1f, transform.position.y);
+            Vector2 p = new Vector2(myTransform.position.x - (i + 1) * 1f, myTransform.position.y);
             GameObject g = (GameObject)Instantiate(TailPrefab, p, Quaternion.identity);
-            g.GetComponent<Renderer>().material.color = color;
-            tail.Insert(i, g.transform);
+            //Debug.Log(tail.Count);
+            g.GetComponent<Renderer>().material.color = color[tail.Count % 2];
+            tail.Add(g.transform);
         }
         for (int i = 0; i < len * disnub + 1; i++)
         {
-            Vector2 p = new Vector2(transform.position.x - i * 1 / (float)disnub, transform.position.y);
+            Vector2 p = new Vector2(myTransform.position.x - i * 1 / (float)disnub, myTransform.position.y);
             posi.Add(p);
         }
         /*Collider2D hitColliders = Physics2D.OverlapCircle(transform.position, 5f);
         Debug.Log("hitColliders" + hitColliders);*/
-        textures = Resources.LoadAll<Sprite>("skin");
-        texturenub = Random.Range(0, textures.Length);
-        gameObject.GetComponent<SpriteRenderer>().sprite = textures[texturenub];
+
         //playe0 = GameObject.FindGameObjectWithTag("Player"); playe1 = GameObject.FindGameObjectsWithTag("TailPrefab(Clone)");
     }
 
     void Update()
     {
-        
         if (!isLive)
         {
             dir = Vector2.zero;
         }
-        Angle = transform.GetComponent<Transform>().localEulerAngles.z;
+        Angle = myTransform.localEulerAngles.z;
         Angle = (Angle > 180 ? Angle - 360 : Angle);
         if (Angle != tarAngle)
         {
             targetRotation = Quaternion.Euler(0f, 0f, (float)tarAngle);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 3);
+            myTransform.rotation = Quaternion.Slerp(myTransform.rotation, targetRotation, Time.deltaTime * 5);
         }
+        score = tail.Count * 6 + eatsmafdcnt;
     }
     void Move()
     {
-        Vector2 v = transform.position;
-        transform.Translate(dir * Time.deltaTime * 5);
+        myTransform.Translate(dir * Time.deltaTime * 5);
         if (ate)
         {
-            posi.Insert(0, transform.position);
+            posi.Insert(0, myTransform.position);
             mycount--;
             if (mycount == 0)
             {
-                Vector2 p = posi[posi.Count - 1];
-                GameObject g = (GameObject)Instantiate(TailPrefab, p, Quaternion.identity);
-                g.GetComponent<Renderer>().material.color = color;
-                tail.Insert(tail.Count - 1, g.transform);
+                mp = posi[posi.Count - 1];
+                mg = (GameObject)Instantiate(TailPrefab, mp, Quaternion.identity);
+                mg.GetComponent<Renderer>().material.color = color[tail.Count % 2];
+                tail.Add(mg.transform);
                 ate = false;
                 mycount = disnub;
             }
@@ -107,7 +107,7 @@ public class snakeAI : MonoBehaviour
         }
         else if (tail.Count > 0)
         {
-            posi.Insert(0, transform.position);
+            posi.Insert(0, myTransform.position);
             for (int i = 0; i < tail.Count; i++)
             {
                 tail[i].position = posi[(i + 1) * disnub];
@@ -115,7 +115,11 @@ public class snakeAI : MonoBehaviour
             posi.RemoveAt(posi.Count - 1);
         }
     }
-
+    public int getScore()
+    {
+        
+        return score;
+    }
     void Changedirection()
     {
         /*if (playe0 != null && Vector2.Distance(transform.position, playe0.transform.position) < AI_ATTACK_DISTANCE)
@@ -135,14 +139,9 @@ public class snakeAI : MonoBehaviour
             }
         }*/
         
-        //Debug.Log("hit   "+hitColliders);
-        
         if (transform.position.x < 10 )
         {
-            //Debug.Log("transform.position.x" + transform.position.x + "    tarAanle" + tarAngle);
             tarAngle = 10;
-            //Debug.Log("  after  tarAanle" + tarAngle);
-
         } 
         if ( transform.position.x > 190 )
         {
@@ -167,11 +166,11 @@ public class snakeAI : MonoBehaviour
             }
         }
         /*按比例放大*/
-        transform.localScale = new Vector3(tail.Count * 0.001f + 0.4f, tail.Count * 0.001f + 0.4f, 1f);
+        /*transform.localScale = new Vector3(tail.Count * 0.001f + 0.4f, tail.Count * 0.001f + 0.4f, 1f);
         for (int i = 0; i < tail.Count; i++)
         {
             tail[i].transform.localScale = transform.localScale;
-        }
+        }*/
     }
     void Live()
     {
@@ -237,6 +236,19 @@ public class snakeAI : MonoBehaviour
             Live();
         }
 
+        if (coll.name.StartsWith("chuansongmenPrefab"))
+        {
+            if (enChuan)
+            {
+                enChuan = false;
+                Vector2 v = GameObject.Find("script").GetComponent<CsDoor>().ChuanSong(coll);
+                transform.position = v;
+            }
+            else
+            {
+                enChuan = true;
+            }
+        }
         if (coll.name.StartsWith("borderTop") || coll.name.StartsWith("borderBottom") ||
         coll.name.StartsWith("borderLeft") || coll.name.StartsWith("borderRight") )
         {
@@ -251,7 +263,7 @@ public class snakeAI : MonoBehaviour
     {
         GameObject Gobj = (GameObject)Instantiate(BodyPrefab, v,
                      Quaternion.identity);
-        Gobj.GetComponent<Renderer>().material.color = color;
+        Gobj.GetComponent<Renderer>().material.color = color[score % 2];
         return Gobj;
     }
 

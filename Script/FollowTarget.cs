@@ -29,6 +29,6 @@ public class FollowTarget: MonoBehaviour
         {
             size = GameObject.Find("snakeHead").GetComponent<Snake>().getScore();
         }
-        mainCamera.orthographicSize = size*0.02f + 10;
+        mainCamera.orthographicSize = size*0.01f + 10;
     }
 }
