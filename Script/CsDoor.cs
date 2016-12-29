@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿/*
+*该脚本主要实现传送门的生成和位置的随机变化
+*/
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-//using System.Linq;
 
 public class CsDoor : MonoBehaviour {
     public GameObject chuansongmenPrefab;
@@ -12,7 +14,6 @@ public class CsDoor : MonoBehaviour {
     public Transform borderBottom;
     public Transform borderLeft;
     public Transform borderRight;
-    // Use this for initialization
     int i;
     Vector2 v;
     void Start () {

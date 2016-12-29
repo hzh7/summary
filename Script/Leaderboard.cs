@@ -1,45 +1,60 @@
-﻿using UnityEngine;
+﻿/*
+*该脚本主要功能是在游戏界面中显示玩家的当前长度和击杀数，以及排行榜信息
+*/
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System;
 
-/*主界面的排行榜*/
-public class Leaderboard : MonoBehaviour {
+public class Leaderboard : MonoBehaviour
+{
     int sco;
     int kil;
     string leader;
     GameObject script;
+    public static bool has_limit;
+    DateTime startTime;
+    int count;
     void Start()
     {
+        count = 0;
+        startTime = DateTime.Now;
     }
+
     void OnGUI()
     {
-        /******{*******/
+        if (++count < 15) return;
         int w = Screen.width / 8;
         int h = Screen.height / 12;
         GUI.skin.label.normal.textColor = Color.red;
         GUI.skin.label.fontSize = w / 5;
         GUI.Label(new Rect(0, 0, w, h), "长度：" + getSco());
-        GUI.Label(new Rect(0, h/2, w, h), "杀击：" + getkil());
-        //GUIStyle style = new GUIStyle(GUI.skin.box);
-        //GUI.skin.box.alignment = TextAnchor.MiddleCenter;
-        GUI.skin.box.fontSize = w / 5;
+        GUI.Label(new Rect(0, h / 2, w, h), "杀击：" + getkil());
+
+        GUI.skin.box.fontSize = (int)(5.8 * h / 12.2);
         GUI.skin.box.alignment = TextAnchor.MiddleCenter;
-        GUI.Box(new Rect(7 * w, 2, w, h), "排行榜");
+        GUI.Box(new Rect((int)(6.5 * w), 2, (int)(1.5 * w), h), "排行榜");
+
         GUI.skin.box.alignment = TextAnchor.UpperLeft;
-        GUI.Box(new Rect(7 * w, h + 4, w, 6 * h), getTop10());
-        /******}*******/
-        //Debug.Log("border:" + GUI.skin.box.border);
+        GUI.Box(new Rect((int)(6.5 * w), h + 4, (int)(1.5 * w), (int)(5.8 * h)), getTop10());
+        if (has_limit)
+        {
+            GUI.skin.label.normal.textColor = Color.white;
+            GUI.skin.label.fontSize = w / 3;
+            GUI.Label(new Rect((int)(w * 3.5), 2, w * 8, (int)(1.2 * h)), getTime());
+        }
     }
+
     public int getSco()
     {
-        if(GameObject.Find("snakeHead") != null){
+        if (GameObject.Find("snakeHead") != null)
+        {
             sco = GameObject.Find("snakeHead").GetComponent<Snake>().getScore();
         }
-        //Debug.Log("sce: " + sco);
         return sco;
     }
+
     public int getkil()
     {
         if (GameObject.Find("snakeHead") != null)
@@ -48,13 +63,12 @@ public class Leaderboard : MonoBehaviour {
         }
         return kil;
     }
-    /**************/
+
     public string getTop10()
     {
         leader = "";
         script = GameObject.Find("script");
         if (script == null) return "";
-        //Debug.Log(snakeAIs.GetComponent<SpawnSnake>().hi());
         List<Transform> snakeAIs = script.GetComponent<SpawnSnake>().getSnakeAIs();
         int[] top10 = new int[10];
         int[] scores = new int[snakeAIs.Count];
@@ -79,7 +93,6 @@ public class Leaderboard : MonoBehaviour {
                         if (scores[top10[k]] < scores[top10[min_pos]]) min_pos = k;
                 }
             }
-            //Debug.Log(snakeAIs[i].GetComponent<snakeAI>().getScore());
         }
         if (GameObject.Find("snakeHead") == null) return "";
         Snake player = GameObject.Find("snakeHead").GetComponent<Snake>();
@@ -105,14 +118,33 @@ public class Leaderboard : MonoBehaviour {
         {
             if (i == m)
             {
-                leader += (i + 1) + " " + GameObject.Find("snakeHead").GetComponent<wenzi>().name + " " + player_score + "\n";
+                leader += formate((i + 1), GameObject.Find("snakeHead").GetComponent<wenzi>().name, player_score);
+                if (i != 9)
+                    leader += "\n";
             }
             else
             {
                 snakeAI tmp = snakeAIs[tops[i]].GetComponent<snakeAI>();
-                leader += (i + 1) + " " + tmp.transform.GetComponent<AiName>().getName() + " " + tmp.getScore() + "\n";
+                leader += formate((i + 1), tmp.transform.GetComponent<AiName>().getName(), tmp.getScore());
+                if (i != 9)
+                    leader += "\n";
             }
         }
         return leader;
+    }
+    private String formate(int rank, String name, int score)
+    {
+        return String.Format(" {0,4} {1,-9} {2,3}", rank, name, score);
+    }
+    private String getTime()
+    {
+        long remains = 300 - (long)((DateTime.Now - startTime).TotalSeconds);
+        if (remains == 0)
+        {
+            GameObject.Find("snakeHead").GetComponent<Snake>().isLive = false;
+            GameObject.Find("snakeHead").GetComponent<Snake>().Live();
+            has_limit = false;
+        }
+        return String.Format("0{0}:{1:00}", remains / 60, remains % 60);
     }
 }

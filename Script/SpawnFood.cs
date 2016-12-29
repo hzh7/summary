@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿/*
+*该脚本主要实现食物的动态生成，并可控制当前游戏中食物的数量
+*/
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;

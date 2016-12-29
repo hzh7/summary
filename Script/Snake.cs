@@ -1,39 +1,42 @@
-﻿using UnityEngine;
+﻿/*
+*该脚本是游戏的核心控制脚本，用于控制玩家蛇的行为，包括蛇的运动，加速并消耗分数，
+*吃食物，身体变长，击杀AI蛇，死亡等一系列行为
+*/
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityStandardAssets.CrossPlatformInput;
+//using UnityStandardAssets.CrossPlatformInput;
 
 public class Snake : MonoBehaviour {
     public static Snake InstanceSnake;
     Transform myTransform;
-    double Angle = 0f;//当前角度
-    double tarAngle = 0f;
-    private Vector2 dir = Vector2.right;
-    List<Transform> tail = new List<Transform>();
+    double Angle = 0f;              //当前角度
+    double tarAngle = 0f;           //目标角度
+    private Vector2 dir = Vector2.right;    //移动的前进方向
+    List<Transform> tail = new List<Transform>();   
     List<Transform> Body = new List<Transform>();
-    List<Vector2> posi = new List<Vector2>();
-    int score = 0;
-    int killnub = 0;
-    bool ate = false;
-    bool isLive = true;
+    List<Vector2> posi = new List<Vector2>();   //用于存放蛇头经过的路径位置
+    int score = 0;                  //分数（蛇的长度）
+    int killnub = 0;                //击杀蛇的数量
+    bool ate = false;               //迟到了食物
+    public bool isLive = true;             //表示存活
     public GameObject PlayerTailPrefab;
     public GameObject BodyPrefab;
-    int disnub = 10;//一节身体移动到前一节的步数
-    int mycount = 10;//记录吃掉食物后5帧在长尾巴
-    int eatsmafdcnt = 0;//每吃6个小点长一节尾巴
-    int yanshi = 30;//用于加速延迟拉屎
-    bool enChuan = true;
-    Quaternion targetRotation;
+    int disnub = 10;                //一节身体移动到前一节的步数
+    int mycount = 10;               //记录吃掉食物后5帧在长尾巴
+    int eatsmafdcnt = 0;            //每吃6个小点长一节尾巴
+    int yanshi = 30;                //用于加速延迟拉屎
+    bool enChuan = true;            //可进入传送门
+    Quaternion targetRotation;      //蛇头的旋转
 
-    //move里用到的变量
+    //move里用到的变量，因会反复调用故声明为全局变量、
     Vector2 mv;
     Vector2 mp;
     GameObject mg;
 
     void Awake()
     {
-        // Register the singleton
         if (InstanceSnake != null)
         {
             Debug.LogError("Multiple instances of SpecialEffectsHelper!");
@@ -56,10 +59,8 @@ public class Snake : MonoBehaviour {
             posi.Add(p);
         }
         //Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, 0.5f);
-        //Debug.Log("hitColliders" + hitColliders);
 	}
 	void Update () {
-        //Angle = transform.GetComponent<Transform>().localEulerAngles.z;
         Angle = myTransform.localEulerAngles.z;
         Angle = (Angle > 180 ? Angle - 360 : Angle);
         if (Angle != tarAngle)
@@ -73,21 +74,18 @@ public class Snake : MonoBehaviour {
         {
             tail[i].transform.localScale = myTransform.localScale;
         }
-        /*if (!isLive)
-        {
-            CancelInvoke("Move");dir = Vector2.zero;
-            Debug.Log("ccccc");
-        }*/
-        
     }
+
     public int getScore()
     {
         return score;
     }
+
     public int getKillnub()
     {
         return killnub;
     }
+
     void Move()
     {
         myTransform.Translate(dir * Time.deltaTime * 5);
@@ -118,10 +116,12 @@ public class Snake : MonoBehaviour {
             posi.RemoveAt(posi.Count - 1);
         }
     }
+
     public void KillSnake()
     {
         killnub++;
     }
+
     public void JoyStickControlMove(Vector2 direction)
     {
         float inputX = direction.x;
@@ -130,9 +130,10 @@ public class Snake : MonoBehaviour {
         tarAngle = Mathf.Acos(inputX / (float)xy);
         tarAngle = (inputY > 0 ? tarAngle : -tarAngle) / Mathf.PI * 180f;
     }
+
     public void ButtonControlPressed()
     {
-        if (isLive && score > 24)//实现加速拉屎，身体变短
+        if (isLive && score > 24)
         {
             if (yanshi > 0)
             {
@@ -150,20 +151,22 @@ public class Snake : MonoBehaviour {
                 tail.Remove(tail[tail.Count-1]);
                 eatsmafdcnt = 6;
             }
+            
             Move();
         }
     }
-    void Live()
+
+    public void Live()
     {
         if (!isLive)
         {
+            Leaderboard.has_limit = false;
             GameObject.Find("script").GetComponent<UDPsocket>().Main();
             CancelInvoke("Move");
             dir = Vector2.zero; 
             transform.gameObject.SetActive(false);
             for (int i = 0; i < tail.Count; i++) {
                 Destroy(tail[i].gameObject);
-                //tail[i].gameObject.SetActive(false);
             }
 
             for (int i = 0; i < tail.Count; i++)
@@ -232,6 +235,7 @@ public class Snake : MonoBehaviour {
             Live();
         }
     }
+
     GameObject SpawnBody(Vector2 v)
     {
        GameObject Gobj = (GameObject)Instantiate(BodyPrefab, v,

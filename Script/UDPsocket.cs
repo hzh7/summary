@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿/*
+*该脚本用于实现用户数据的同步，每当游戏结束，会自动向服务器发现本场游戏中的玩家表现
+*/
+using UnityEngine;
 using System.Collections;
 using System.Net;
 using System.Net.Sockets;

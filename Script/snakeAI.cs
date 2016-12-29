@@ -1,11 +1,14 @@
-﻿using UnityEngine;
+﻿/*
+*该脚本同为游戏的核心脚本，用于控制AI蛇的运动，吃食物，
+*身体变长和死亡等一系列动作
+*/
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 public class snakeAI : MonoBehaviour
 {
     Transform myTransform;
-    int snakeID;
     Vector2 dir = Vector2.right;
     bool isLive = true;
     float Angle = 0f;//当前角度
@@ -16,10 +19,8 @@ public class snakeAI : MonoBehaviour
     List<Transform> tail = new List<Transform>();
     List<Transform> Body = new List<Transform>();
     List<Vector2> posi = new List<Vector2>();
-    // Did the snake eat something?
     bool ate = false;
     Vector2 dangerdir = Vector2.zero;   
-    // Tail Prefab
     public GameObject TailPrefab;
     public GameObject BodyPrefab;
     const int disnub = 10;//一节身体移动到前一节的步数
@@ -28,12 +29,11 @@ public class snakeAI : MonoBehaviour
     private GameObject[] playe1;
     bool dange = false;
     int eatsmafdcnt = 6;//每吃6个小点长一节尾巴
-    //敌人的巡逻范围
-    public const float AI_ATTACK_DISTANCE = 5f;
     public bool isHatred = false;
     bool iszhuan = false;
     Quaternion targetRotation;
     bool enChuan = true;
+
     //move用到的变量
     Vector2 mv;
     Vector2 mp;
@@ -63,10 +63,7 @@ public class snakeAI : MonoBehaviour
             Vector2 p = new Vector2(myTransform.position.x - i * 1 / (float)disnub, myTransform.position.y);
             posi.Add(p);
         }
-        /*Collider2D hitColliders = Physics2D.OverlapCircle(transform.position, 5f);
-        Debug.Log("hitColliders" + hitColliders);*/
-
-        //playe0 = GameObject.FindGameObjectWithTag("Player"); playe1 = GameObject.FindGameObjectsWithTag("TailPrefab(Clone)");
+        //Collider2D hitColliders = Physics2D.OverlapCircle(transform.position, 5f);
     }
 
     void Update()
@@ -84,6 +81,7 @@ public class snakeAI : MonoBehaviour
         }
         score = tail.Count * 6 + eatsmafdcnt;
     }
+
     void Move()
     {
         myTransform.Translate(dir * Time.deltaTime * 5);
@@ -115,30 +113,15 @@ public class snakeAI : MonoBehaviour
             posi.RemoveAt(posi.Count - 1);
         }
     }
+
     public int getScore()
     {
         
         return score;
     }
+
     void Changedirection()
-    {
-        /*if (playe0 != null && Vector2.Distance(transform.position, playe0.transform.position) < AI_ATTACK_DISTANCE)
-        {
-            tarAngle += Vector2.Angle(transform.position, playe0.transform.position);
-            Debug.Log("AI和蛇很近");
-            Debug.Log(Vector2.Angle(transform.position, playe0.transform.position));
-        }
-        //GameObject go;
-        foreach (GameObject go in playe1) 
-        {
-            if (Vector2.Distance(transform.position, go.transform.position) < AI_ATTACK_DISTANCE &&
-                Vector2.Distance(transform.position, go.transform.position) > 0)
-            {
-                Debug.Log("AI快要撞到AL");
-                tarAngle += Vector2.Angle(transform.position, go.transform.position);
-            }
-        }*/
-        
+    {        
         if (transform.position.x < 10 )
         {
             tarAngle = 10;
@@ -165,12 +148,6 @@ public class snakeAI : MonoBehaviour
                 tarAngle += Random.Range(-90, 90);
             }
         }
-        /*按比例放大*/
-        /*transform.localScale = new Vector3(tail.Count * 0.001f + 0.4f, tail.Count * 0.001f + 0.4f, 1f);
-        for (int i = 0; i < tail.Count; i++)
-        {
-            tail[i].transform.localScale = transform.localScale;
-        }*/
     }
     void Live()
     {
@@ -269,7 +246,6 @@ public class snakeAI : MonoBehaviour
 
     Color RandomColor()
     {
-        //随机颜色的RGB值。即刻得到一个随机的颜色
         List<Color> co = new List<Color>();
         co.Insert(0, Color.blue);
         co.Insert(0, Color.cyan);

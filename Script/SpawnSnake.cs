@@ -1,24 +1,25 @@
-﻿using UnityEngine;
+﻿/*
+*该脚本主要实现AI蛇的动态生成，并可控制当前游戏中AI蛇的数量
+*/
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+
 public class SpawnSnake : MonoBehaviour
 {
     public static SpawnSnake Instance;
-
     public GameObject SnakePrefab;
     public GameObject TailPrefab;
-
     List<Transform> snakeAI = new List<Transform>();
     public int snakeCount = 10;
     public Transform borderTop;
     public Transform borderBottom;
     public Transform borderLeft;
     public Transform borderRight;
-
-    //用于换肤
     public Sprite[] textures;
     int texturenub = 1;
+
     void Awake()
     {
         if (Instance != null)
@@ -48,18 +49,22 @@ public class SpawnSnake : MonoBehaviour
             snakeAI.Insert(0, g.transform);
         }
     }
+
     public int getSnakeCount()
     {
         return snakeCount;
     }
+
     public void setSnakeCount(Transform a)
     {
         snakeAI.Remove(a);
     }
+
     public List<Transform> getSnakeAIs()
     {
         return snakeAI;
     }
+
     GameObject Spawn()
     {
         int x = (int)Random.Range(borderLeft.position.x+10,
@@ -71,5 +76,4 @@ public class SpawnSnake : MonoBehaviour
         Gobj.GetComponent<SpriteRenderer>().sprite = textures[texturenub];
         return Gobj;
     }
-
 }
