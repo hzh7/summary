@@ -16,5 +16,11 @@ public class menuscript : MonoBehaviour
         Leaderboard.has_limit = false;
         Application.LoadLevel("newSnake");
     }
+    void Update()
+    {
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+    }
 }
-
