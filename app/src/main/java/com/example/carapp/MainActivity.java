@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -29,7 +30,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        //隐藏标题栏
+        ActionBar action = getSupportActionBar();
+        if(action != null){
+            action.hide();
+        }
         //启动app时显示主界面
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         MainFragment mainFragment = new MainFragment();
