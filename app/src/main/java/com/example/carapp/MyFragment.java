@@ -1,5 +1,6 @@
 package com.example.carapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -35,7 +36,9 @@ public class MyFragment extends android.support.v4.app.Fragment{
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getActivity(), "you clicked this", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(),MapActivity.class);
+                startActivity(intent);
+                //Toast.makeText(getActivity(), "you clicked this", Toast.LENGTH_SHORT).show();
             }
         });
         return view;
